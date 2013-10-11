@@ -26,10 +26,14 @@ class PDU(object):
         name = agentx.PDU_TYPE_NAME[self.type]
         print "<pdu>"
         print "[%s: %d %d %d]" % (name, self.session_id, self.transaction_id, self.packet_id)
+        if 'payload_length' in self.state:
+            print "Length:", self.state['payload_length']
         if hasattr(self, 'response'):
             print self.response
         if hasattr(self, 'values'):
-            print self.values
+            pprint(self.values)
+        if hasattr(self, 'range_list'):
+            pprint(self.range_list)
         print "</pdu>"
         #pprint(self.state)
 
@@ -37,7 +41,7 @@ class PDU(object):
     # ====================================================
     # encode functions
 
-    def encode_oid(self, oid):
+    def encode_oid(self, oid, include=0):
         oid = oid.strip()
         oid = oid.split('.')
         oid = [int(i) for i in oid]
@@ -48,7 +52,7 @@ class PDU(object):
         else:
             # no prefix
             prefix = 0
-        buf = struct.pack('BBBB', len(oid), prefix, 0, 0)
+        buf = struct.pack('BBBB', len(oid), prefix, include, 0)
         for i in range(len(oid)):
             buf += struct.pack('!L', oid[i])
         return buf
@@ -59,6 +63,25 @@ class PDU(object):
         buf += octet
         padding = 4 - (len(octet)%4)
         buf += chr(0)* padding
+        return buf
+
+
+    def encode_value(self, type, name, value):
+        buf = struct.pack('!HH', type, 0)
+        buf += self.encode_oid(name)
+        if type in [agentx.TYPE_INTEGER, agentx.TYPE_COUNTER32, agentx.TYPE_GAUGE32, agentx.TYPE_TIMETICKS]:
+            buf += struct.pack('!L', value)
+        elif type in [agentx.TYPE_COUNTER64]:
+            buf += struct.pack('!Q', value)
+        elif type in [agentx.TYPE_OBJECTIDENTIFIER]:
+            buf += self.encode_oid(value)
+        elif type in [agentx.TYPE_IPADDRESS, agentx.TYPE_OPAQUE, agentx.TYPE_OCTETSTRING]:
+            buf += self.encode_octet(value)
+        elif type in [agentx.TYPE_NULL, agentx.TYPE_NOSUCHOBJECT, agentx.TYPE_NOSUCHINSTANCE, agentx.TYPE_ENDOFMIBVIEW]:
+            # No data
+            pass
+        else:
+            print "Unknow Type:", vtype
         return buf
 
 
@@ -94,6 +117,11 @@ class PDU(object):
             # Sub Tree
             buf += self.encode_oid(self.oid)
 
+        elif self.type == agentx.AGENTX_RESPONSE_PDU:
+            buf += struct.pack('!LHH', 0, agentx.ERROR_NOAGENTXERROR, 0)
+            for value in self.values:
+                buf += self.encode_value(value['type'], value['name'], value['value'])
+
         else:
             # Unsupported PDU type
             pass
@@ -128,11 +156,24 @@ class PDU(object):
                 t = struct.unpack('!L', self.decode_buf[:4])
                 self.decode_buf = self.decode_buf[4:]
                 sub_ids.append(t[0])
-            return sub_ids
+            return sub_ids, ret['include']
         except Exception, e:
             print e
             print "Invalid packing OID header:"
             pprint(self.decode_buf)
+
+    def decode_search_range(self):
+        start_oid, include = self.decode_oid()
+        if start_oid == []:
+            return [], [], 0
+        end_oid, _ = self.decode_oid()
+        return start_oid, end_oid, include
+
+    def decode_search_range_list(self):
+        range_list = []
+        while len(self.decode_buf):
+            range_list.append(self.decode_search_range())
+        return range_list
 
     
     def decode_octet(self):
@@ -156,7 +197,7 @@ class PDU(object):
         except Exception, e:
             print e
             print "Invalid packing value header"
-        oid = self.decode_oid()
+        oid,_ = self.decode_oid()
         if vtype in [agentx.TYPE_INTEGER, agentx.TYPE_COUNTER32, agentx.TYPE_GAUGE32, agentx.TYPE_TIMETICKS]:
             data = struct.unpack('!L', self.decode_buf[:4])
             self.decode_buf = self.decode_buf[4:]
@@ -164,7 +205,7 @@ class PDU(object):
             data = struct.unpack('!Q', self.decode_buf[:8])
             self.decode_buf = self.decode_buf[8:]
         elif vtype in [agentx.TYPE_OBJECTIDENTIFIER]:
-            data = self.decode_oid()
+            data,_ = self.decode_oid()
         elif vtype in [agentx.TYPE_IPADDRESS, agentx.TYPE_OPAQUE, agentx.TYPE_OCTETSTRING]:
             data = self.decode_octet()
         elif vtype in [agentx.TYPE_NULL, agentx.TYPE_NOSUCHOBJECT, agentx.TYPE_NOSUCHINSTANCE, agentx.TYPE_ENDOFMIBVIEW]:
@@ -195,10 +236,15 @@ class PDU(object):
             self.session_id = ret['session_id']
             self.packet_id = ret['packet_id']
             self.transaction_id = ret['transaction_id']
+            self.decode_buf = self.decode_buf[:ret['payload_length']]
+            if ret['flags'] & 0x08:  # content present
+                context = self.decode_octet() 
+                print "Context:", conext
             return ret
         except Exception, e:
             print e
-            print "Invalid packing"
+            print "Invalid packing: ", len(self.decode_buf)
+            pprint(self.decode_buf)
 
 
     def decode(self, buf):
@@ -220,7 +266,10 @@ class PDU(object):
                 self.values.append(self.decode_value())
 
         elif ret['pdu_type'] == agentx.AGENTX_GET_PDU:
-            pass
+            self.range_list = self.decode_search_range_list()
+
+        elif ret['pdu_type'] == agentx.AGENTX_GETNEXT_PDU:
+            self.range_list = self.decode_search_range_list()
 
         else:
             # Unspported PDU type
