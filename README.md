@@ -1,6 +1,19 @@
+## Python AgentX Implementation
 
+Python-AgentX is pure Python implementation of AgentX protocol (RFC 2741), it will allow you to extend SNMP agent (snmpd) by writing AgentX subagents, without modifying your original SNMP agent.
 
-## Python AgentX Client library
+Some SNMP agents can be extended using many mechanisms, e.g. net-snmp can be extended using:
+
+* running external commands (exec, extend, pass)
+* loading new code dynamically (embedded perl, dlmod)
+* communicating with other agents (proxy, SMUX, AgentX)
+
+Check "EXTENDING AGENT FUNCTIONALITY" in snmpd.conf man page for more details.
+
+[RFC 2741: Agent Extensibility (AgentX) Protocol Version 1]
+(http://www.ietf.org/rfc/rfc2741.txt)
+
+### Status
 
 Currently the code is capable of the following:
 
@@ -14,8 +27,7 @@ Example:
     $ snmpget -v2c -c public localhost .1.3.6.1.4.1.36985.100.1.0
     iso.3.6.1.4.1.36985.100.1.0 = Counter32: 1000
 
-
-## SNMP Agent Configuration
+### SNMP Agent Configuration
 
 You need to make sure the SNMP agent (snmpd) will act as AgentX master:
 
@@ -29,3 +41,7 @@ To help debugging AgentX protocol run snmpd in foreground debug mode:
 
     sudo /usr/sbin/snmpd -f -Lsd  -Dagentx -Le -u snmp -g snmp -I -smux -p /var/run/snmpd.pid
 
+### FAQ
+
+[What's the difference between AgentX, SMUX and proxied SNMP?]
+(http://net-snmp.sourceforge.net/wiki/index.php/FAQ:Agent_08)
