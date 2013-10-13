@@ -19,13 +19,23 @@ Currently the code is capable of the following:
 
 * Open a session with AgentX master, e.g. net-snmpd snmpd, and register a new session.
 * Send Ping request.
-* Register the ".1.3.6.1.4.1.36985" MIB region.
-* Respond to SNMP GET request for the value ".1.3.6.1.4.1.36985.100.1.0"
+* Register any MIB region.
+* Respond to SNMP GET request for values.
+* Respond to SNMP GETNEXT request for values.
+
 
 Example:
 
-    $ snmpget -v2c -c public localhost .1.3.6.1.4.1.36985.100.1.0
-    iso.3.6.1.4.1.36985.100.1.0 = Counter32: 1000
+    $ snmpget -v2c -c public localhost .1.3.6.1.3.9999.100.1.0
+    iso.3.6.1.3.9999.100.1.0 = Counter32: 1000
+
+
+### TODO
+
+* periodically call ''update'' method to update MIB values.
+* Ping agentx master periodically.
+* Helper function for tables.
+
 
 ### SNMP Agent Configuration
 
@@ -35,7 +45,7 @@ You need to make sure the SNMP agent (snmpd) will act as AgentX master:
 
 Also make sure the SNMP agent accept requests for your MIB region:
 
-    view   systemonly  included   .1.3.6.1.4.1.36985
+    view   systemonly  included   .1.3.6.1.3.9999
 
 To help debugging AgentX protocol run snmpd in foreground debug mode:
 

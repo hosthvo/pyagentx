@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
 
-
-
 import sys
 import socket 
 import struct
@@ -20,6 +18,7 @@ class PDU(object):
         self.packet_id = 0
         self.decode_buf = ''
         self.state = {}
+        self.values = []
 
     
     def dump(self):
@@ -156,7 +155,8 @@ class PDU(object):
                 t = struct.unpack('!L', self.decode_buf[:4])
                 self.decode_buf = self.decode_buf[4:]
                 sub_ids.append(t[0])
-            return sub_ids, ret['include']
+            oid = '.'.join(str(i) for i in sub_ids)
+            return oid, ret['include']
         except Exception, e:
             print e
             print "Invalid packing OID header:"
