@@ -4,11 +4,14 @@
 import sys
 import socket
 import struct
+import logging
 from pprint import pprint 
 
 import agentx
 from agentx.pdu import PDU
 
+
+logger = logging.getLogger('agentx.agent')
 
 class Agent(object):
 
@@ -59,12 +62,12 @@ class Agent(object):
         pass
 
     def tick(self):
-        print "tick"
+        logger.debug("tick")
         updated = False
         self.ticker += 1
         for row in self.register_list:
             if self.ticker % row['freq'] == 0:
-                print "Update:", row['oid']
+                logger.debug("Update: %s" % (row['oid']))
                 updated = True
                 row['callback']()
         if updated:
@@ -97,26 +100,26 @@ class Agent(object):
     def start(self):
         self.setup()
 
-        print " ==== Open PDU ===="
+        logger.info("==== Open PDU ====")
         pdu = self.new_pdu(agentx.AGENTX_OPEN_PDU)
         self.send_pdu(pdu)
         pdu = self.recv_pdu()
         self.session_id = pdu.session_id
 
-        print " ==== Ping PDU ===="
+        logger.info("==== Ping PDU ====")
         pdu = self.new_pdu(agentx.AGENTX_PING_PDU)
         self.send_pdu(pdu)
         pdu = self.recv_pdu()
 
-        print " ==== Register PDU ===="
+        logger.info("==== Register PDU ====")
         for row in self.register_list:
-            print "Registering:", row['oid']
+            logger.info("Registering: %s" % (row['oid']))
             pdu = self.new_pdu(agentx.AGENTX_REGISTER_PDU)
             pdu.oid = row['oid']
             self.send_pdu(pdu)
             pdu = self.recv_pdu()
 
-        print " ==== Waiting for PDU ===="        
+        logger.info("==== Waiting for PDU ====")
         while 1:
             self.tick()
             try:
@@ -126,6 +129,7 @@ class Agent(object):
 
             response = self.response_pdu(request)
             if request.type == agentx.AGENTX_GET_PDU:
+                logger.debug("Received GET PDU")
                 for rvalue in request.range_list:
                     oid = rvalue[0]
                     print "OID:", oid
@@ -137,6 +141,7 @@ class Agent(object):
                         response.values.append({'type':agentx.TYPE_NOSUCHOBJECT, 'name':rvalue[0], 'value':0})
 
             elif request.type == agentx.AGENTX_GETNEXT_PDU:
+                logger.debug("Received GET_NEXT PDU")
                 for rvalue in request.range_list:
                     oid = self.get_next_oid(rvalue[0])
                     print "GET_NEXT: %s => %s" %(rvalue[0], oid)

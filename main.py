@@ -16,6 +16,8 @@ snmpwalk -v2c -c public localhost .1.3.6.1.3.9999.100
 
 """
 
+import logging
+
 import agentx
 from agentx.pdu import PDU
 from agentx.agent import Agent
@@ -39,8 +41,17 @@ class MyAgent(Agent):
         self.append('1.3.6.1.3.9999.200.3.0', agentx.TYPE_OCTETSTRING, "Hola Dora")
 
 
+def setup_login():
+    logger = logging.getLogger('agentx')
+    logger.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
 
 def main():
+    setup_login()
     a = MyAgent()
     a.start()
 
