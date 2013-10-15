@@ -17,6 +17,7 @@ snmpwalk -v2c -c public localhost .1.3.6.1.3.9999.100
 """
 
 import logging
+import time
 
 import agentx
 from agentx.pdu import PDU
@@ -31,14 +32,14 @@ class MyAgent(Agent):
         self.register('1.3.6.1.3.9999.200', self.update2, 10)
 
     def update(self):
-        self.append('1.3.6.1.3.9999.100.1.0', agentx.TYPE_COUNTER32, 1000)
-        self.append('1.3.6.1.3.9999.100.2.0', agentx.TYPE_COUNTER32, 2000)
-        self.append('1.3.6.1.3.9999.100.3.0', agentx.TYPE_OCTETSTRING, "Hola Dora")
+        self.append('1.0', agentx.TYPE_COUNTER32, 1000)
+        self.append('2.0', agentx.TYPE_COUNTER32, 2000)
+        self.append('3.0', agentx.TYPE_OCTETSTRING, "String for 100 MIB")
 
     def update2(self):
-        self.append('1.3.6.1.3.9999.200.1.0', agentx.TYPE_COUNTER32, 1000)
-        self.append('1.3.6.1.3.9999.200.2.0', agentx.TYPE_COUNTER32, 2000)
-        self.append('1.3.6.1.3.9999.200.3.0', agentx.TYPE_OCTETSTRING, "Hola Dora")
+        self.append('1.0', agentx.TYPE_TIMETICKS, int(time.time()))
+        self.append('2.0', agentx.TYPE_COUNTER32, 2000)
+        self.append('3.0', agentx.TYPE_OCTETSTRING, "String for 200 MIB")
 
 
 def setup_login():

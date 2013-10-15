@@ -69,6 +69,7 @@ class Agent(object):
             if self.ticker % row['freq'] == 0:
                 logger.debug("Update: %s" % (row['oid']))
                 updated = True
+                self._base_oid = row['oid']
                 row['callback']()
         if updated:
             # recalculate reverse index if data changed
@@ -78,6 +79,7 @@ class Agent(object):
         self.register_list.append({'oid':oid, 'callback':callback, 'freq': freq})
 
     def append(self, oid, type, value):
+        oid = "%s.%s" % (self._base_oid, oid)
         self.data[oid] = {'name': oid, 'type':type, 'value':value}
 
     def get_next_oid(self, oid):
