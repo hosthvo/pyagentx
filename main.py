@@ -12,7 +12,7 @@ sudo /usr/sbin/snmpd -f -Lsd  -Dagentx -Le -u snmp -g snmp -I -smux -p /var/run/
 
 
 snmpget  -v2c -c public localhost .1.3.6.1.3.9999.100.1.0
-snmpwalk -v2c -c public localhost .1.3.6.1.3.9999.100
+snmpwalk -v2c -c public localhost .1.3.6.1.3.9999
 
 """
 
@@ -37,7 +37,7 @@ class MyAgent(Agent):
         self.append('3.0', agentx.TYPE_OCTETSTRING, "String for 100 MIB")
 
     def update2(self):
-        self.append('1.0', agentx.TYPE_TIMETICKS, int(time.time()))
+        self.append('1.0', agentx.TYPE_COUNTER32, int(time.time()))
         self.append('2.0', agentx.TYPE_COUNTER32, 2000)
         self.append('3.0', agentx.TYPE_OCTETSTRING, "String for 200 MIB")
 
