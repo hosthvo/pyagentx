@@ -19,9 +19,10 @@ Currently the code is capable of the following:
 
 * Open a session with AgentX master, e.g. net-snmpd snmpd, and register a new session.
 * Send Ping request.
-* Register any MIB region.
+* Register multiple MIB regions.
 * Respond to SNMP GET request for values.
 * Respond to SNMP GETNEXT request for values.
+* Multiple MIB update method with custom frequency for each.
 
 
 Example:
@@ -29,12 +30,6 @@ Example:
     $ snmpget -v2c -c public localhost .1.3.6.1.3.9999.100.1.0
     iso.3.6.1.3.9999.100.1.0 = Counter32: 1000
 
-
-### TODO
-
-* periodically call ''update'' method to update MIB values.
-* Ping agentx master periodically.
-* Helper function for tables.
 
 
 ### SNMP Agent Configuration
@@ -51,7 +46,15 @@ To help debugging AgentX protocol run snmpd in foreground debug mode:
 
     sudo /usr/sbin/snmpd -f -Lsd  -Dagentx -Le -u snmp -g snmp -I -smux -p /var/run/snmpd.pid
 
+
 ### FAQ
 
 [What's the difference between AgentX, SMUX and proxied SNMP?]
 (http://net-snmp.sourceforge.net/wiki/index.php/FAQ:Agent_08)
+
+
+### TODO
+
+* Ping agentx master periodically.
+* Helper function for tables.
+

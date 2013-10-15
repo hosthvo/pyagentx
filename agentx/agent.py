@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 
+import sys
 import socket
 import struct
 from pprint import pprint 
@@ -14,6 +15,7 @@ class Agent(object):
     def __init__(self):
         self.socket = socket.socket( socket.AF_UNIX, socket.SOCK_STREAM )
         self.socket.connect(agentx.SOCKET_PATH)
+        self.socket.settimeout(1)
         self.session_id = 0
         self.transaction_id = 0
         self.debug = 1
@@ -21,6 +23,7 @@ class Agent(object):
         self.register_list = []
         self.data = {}        
         self.data_idx = []
+        self.ticker = -1  # increment each tick (second)
 
 
     def new_pdu(self, type):
@@ -41,7 +44,7 @@ class Agent(object):
         if self.debug: pdu.dump()
         self.socket.send(pdu.encode())
         
-    def recv_pdu(self):        
+    def recv_pdu(self):
         buf = self.socket.recv(1024)
         pdu = PDU()
         pdu.decode(buf)
@@ -55,18 +58,24 @@ class Agent(object):
         # override this to register mib
         pass
 
-    def update(self):
-        # override to register MIB values
-        pass
+    def tick(self):
+        print "tick"
+        updated = False
+        self.ticker += 1
+        for row in self.register_list:
+            if self.ticker % row['freq'] == 0:
+                print "Update:", row['oid']
+                updated = True
+                row['callback']()
+        if updated:
+            # recalculate reverse index if data changed
+            self.data_idx = sorted(self.data.keys(), key=lambda k: tuple(int(part) for part in k.split('.')))
 
-    def register(self, oid):
-        self.register_list.append(oid)
+    def register(self, oid, callback, freq=5):
+        self.register_list.append({'oid':oid, 'callback':callback, 'freq': freq})
 
     def append(self, oid, type, value):
         self.data[oid] = {'name': oid, 'type':type, 'value':value}
-
-    def prepare(self):
-        self.data_idx = sorted(self.data.keys(), key=lambda k: tuple(int(part) for part in k.split('.')))
 
     def get_next_oid(self, oid):
         if oid in self.data:
@@ -87,8 +96,6 @@ class Agent(object):
 
     def start(self):
         self.setup()
-        self.update()
-        self.prepare()
 
         print " ==== Open PDU ===="
         pdu = self.new_pdu(agentx.AGENTX_OPEN_PDU)
@@ -102,16 +109,21 @@ class Agent(object):
         pdu = self.recv_pdu()
 
         print " ==== Register PDU ===="
-        for oid in self.register_list:
-            print "Registering:", oid
+        for row in self.register_list:
+            print "Registering:", row['oid']
             pdu = self.new_pdu(agentx.AGENTX_REGISTER_PDU)
-            pdu.oid = oid
+            pdu.oid = row['oid']
             self.send_pdu(pdu)
             pdu = self.recv_pdu()
 
         print " ==== Waiting for PDU ===="        
         while 1:
-            request = self.recv_pdu()
+            self.tick()
+            try:
+                request = self.recv_pdu()
+            except socket.timeout:
+                continue
+
             response = self.response_pdu(request)
             if request.type == agentx.AGENTX_GET_PDU:
                 for rvalue in request.range_list:

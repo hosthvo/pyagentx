@@ -25,12 +25,18 @@ from agentx.agent import Agent
 class MyAgent(Agent):
 
     def setup(self):
-        self.register('1.3.6.1.3.9999')
+        self.register('1.3.6.1.3.9999.100', self.update)
+        self.register('1.3.6.1.3.9999.200', self.update2, 10)
 
     def update(self):
         self.append('1.3.6.1.3.9999.100.1.0', agentx.TYPE_COUNTER32, 1000)
         self.append('1.3.6.1.3.9999.100.2.0', agentx.TYPE_COUNTER32, 2000)
         self.append('1.3.6.1.3.9999.100.3.0', agentx.TYPE_OCTETSTRING, "Hola Dora")
+
+    def update2(self):
+        self.append('1.3.6.1.3.9999.200.1.0', agentx.TYPE_COUNTER32, 1000)
+        self.append('1.3.6.1.3.9999.200.2.0', agentx.TYPE_COUNTER32, 2000)
+        self.append('1.3.6.1.3.9999.200.3.0', agentx.TYPE_OCTETSTRING, "Hola Dora")
 
 
 
