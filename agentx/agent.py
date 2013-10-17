@@ -5,6 +5,7 @@ import sys
 import socket
 import struct
 import logging
+import time
 from pprint import pprint 
 
 import agentx
@@ -16,9 +17,6 @@ logger = logging.getLogger('agentx.agent')
 class Agent(object):
 
     def __init__(self):
-        self.socket = socket.socket( socket.AF_UNIX, socket.SOCK_STREAM )
-        self.socket.connect(agentx.SOCKET_PATH)
-        self.socket.settimeout(1)
         self.session_id = 0
         self.transaction_id = 0
         self.debug = 1
@@ -28,6 +26,16 @@ class Agent(object):
         self.data_idx = []
         self.ticker = -1  # increment each tick (second)
 
+    def _connect(self):
+        while 1:
+            try:
+                self.socket = socket.socket( socket.AF_UNIX, socket.SOCK_STREAM )
+                self.socket.connect(agentx.SOCKET_PATH)
+                self.socket.settimeout(1)
+                return
+            except socket.error:
+                logger.error("Failed to connect, sleeping and retrying later")
+                time.sleep(2)
 
     def new_pdu(self, type):
         pdu = PDU(type)
@@ -49,6 +57,7 @@ class Agent(object):
         
     def recv_pdu(self):
         buf = self.socket.recv(1024)
+        if not buf: return None
         pdu = PDU()
         pdu.decode(buf)
         if self.debug: pdu.dump()
@@ -67,7 +76,7 @@ class Agent(object):
         self.ticker += 1
         for row in self.register_list:
             if self.ticker % row['freq'] == 0:
-                logger.debug("Update: %s" % (row['oid']))
+                logger.info("Update: %s" % (row['oid']))
                 updated = True
                 self._base_oid = row['oid']
                 row['callback']()
@@ -101,6 +110,16 @@ class Agent(object):
 
     def start(self):
         self.setup()
+        while 1:
+            try:
+                self._start_network()
+            except socket.error:
+                logger.error("Network error, master disconnect?!")
+                pass
+
+
+    def _start_network(self):
+        self._connect()
 
         logger.info("==== Open PDU ====")
         pdu = self.new_pdu(agentx.AGENTX_OPEN_PDU)
@@ -129,24 +148,28 @@ class Agent(object):
             except socket.timeout:
                 continue
 
+            if not request:
+                logger.error("Empty PDU, connection closed!")
+                raise socket.error
+
             response = self.response_pdu(request)
             if request.type == agentx.AGENTX_GET_PDU:
                 logger.debug("Received GET PDU")
                 for rvalue in request.range_list:
                     oid = rvalue[0]
-                    print "OID:", oid
+                    logger.debug("OID: %s" % (oid))
                     if oid in self.data:
-                        print "Found"
+                        logger.debug("OID Found")
                         response.values.append(self.data[oid])
                     else:
-                        print "Not found!"
+                        logger.debug("OID Not Found!")
                         response.values.append({'type':agentx.TYPE_NOSUCHOBJECT, 'name':rvalue[0], 'value':0})
 
             elif request.type == agentx.AGENTX_GETNEXT_PDU:
                 logger.debug("Received GET_NEXT PDU")
                 for rvalue in request.range_list:
                     oid = self.get_next_oid(rvalue[0])
-                    print "GET_NEXT: %s => %s" %(rvalue[0], oid)
+                    logger.debug("GET_NEXT: %s => %s" % (rvalue[0], oid))
                     if oid:
                         response.values.append(self.data[oid])
                     else:
