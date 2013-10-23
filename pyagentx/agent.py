@@ -8,11 +8,11 @@ import logging
 import time
 from pprint import pprint 
 
-import agentx
-from agentx.pdu import PDU
+import pyagentx
+from pyagentx.pdu import PDU
 
 
-logger = logging.getLogger('agentx.agent')
+logger = logging.getLogger('pyagentx.agent')
 
 class Agent(object):
 
@@ -30,7 +30,7 @@ class Agent(object):
         while 1:
             try:
                 self.socket = socket.socket( socket.AF_UNIX, socket.SOCK_STREAM )
-                self.socket.connect(agentx.SOCKET_PATH)
+                self.socket.connect(pyagentx.SOCKET_PATH)
                 self.socket.settimeout(1)
                 return
             except socket.error:
@@ -45,7 +45,7 @@ class Agent(object):
         return pdu
 
     def response_pdu(self, org_pdu):
-        pdu = PDU(agentx.AGENTX_RESPONSE_PDU)
+        pdu = PDU(pyagentx.AGENTX_RESPONSE_PDU)
         pdu.session_id = org_pdu.session_id
         pdu.transaction_id = org_pdu.transaction_id
         pdu.packet_id = org_pdu.packet_id
@@ -122,20 +122,20 @@ class Agent(object):
         self._connect()
 
         logger.info("==== Open PDU ====")
-        pdu = self.new_pdu(agentx.AGENTX_OPEN_PDU)
+        pdu = self.new_pdu(pyagentx.AGENTX_OPEN_PDU)
         self.send_pdu(pdu)
         pdu = self.recv_pdu()
         self.session_id = pdu.session_id
 
         logger.info("==== Ping PDU ====")
-        pdu = self.new_pdu(agentx.AGENTX_PING_PDU)
+        pdu = self.new_pdu(pyagentx.AGENTX_PING_PDU)
         self.send_pdu(pdu)
         pdu = self.recv_pdu()
 
         logger.info("==== Register PDU ====")
         for row in self.register_list:
             logger.info("Registering: %s" % (row['oid']))
-            pdu = self.new_pdu(agentx.AGENTX_REGISTER_PDU)
+            pdu = self.new_pdu(pyagentx.AGENTX_REGISTER_PDU)
             pdu.oid = row['oid']
             self.send_pdu(pdu)
             pdu = self.recv_pdu()
@@ -153,7 +153,7 @@ class Agent(object):
                 raise socket.error
 
             response = self.response_pdu(request)
-            if request.type == agentx.AGENTX_GET_PDU:
+            if request.type == pyagentx.AGENTX_GET_PDU:
                 logger.debug("Received GET PDU")
                 for rvalue in request.range_list:
                     oid = rvalue[0]
@@ -163,9 +163,9 @@ class Agent(object):
                         response.values.append(self.data[oid])
                     else:
                         logger.debug("OID Not Found!")
-                        response.values.append({'type':agentx.TYPE_NOSUCHOBJECT, 'name':rvalue[0], 'value':0})
+                        response.values.append({'type':pyagentx.TYPE_NOSUCHOBJECT, 'name':rvalue[0], 'value':0})
 
-            elif request.type == agentx.AGENTX_GETNEXT_PDU:
+            elif request.type == pyagentx.AGENTX_GETNEXT_PDU:
                 logger.debug("Received GET_NEXT PDU")
                 for rvalue in request.range_list:
                     oid = self.get_next_oid(rvalue[0])
@@ -173,7 +173,7 @@ class Agent(object):
                     if oid:
                         response.values.append(self.data[oid])
                     else:
-                        response.values.append({'type':agentx.TYPE_ENDOFMIBVIEW, 'name':rvalue[0], 'value':0})
+                        response.values.append({'type':pyagentx.TYPE_ENDOFMIBVIEW, 'name':rvalue[0], 'value':0})
 
             self.send_pdu(response)
 

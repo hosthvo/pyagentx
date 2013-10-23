@@ -19,9 +19,9 @@ snmpwalk -v2c -c public localhost .1.3.6.1.3.9999
 import logging
 import time
 
-import agentx
-from agentx.pdu import PDU
-from agentx.agent import Agent
+import pyagentx
+from pyagentx.pdu import PDU
+from pyagentx.agent import Agent
 
 
 
@@ -32,18 +32,18 @@ class MyAgent(Agent):
         self.register('1.3.6.1.3.9999.200', self.update2, 10)
 
     def update(self):
-        self.append('1.0', agentx.TYPE_COUNTER32, 1000)
-        self.append('2.0', agentx.TYPE_COUNTER32, 2000)
-        self.append('3.0', agentx.TYPE_OCTETSTRING, "String for 100 MIB")
+        self.append('1.0', pyagentx.TYPE_COUNTER32, 1000)
+        self.append('2.0', pyagentx.TYPE_COUNTER32, 2000)
+        self.append('3.0', pyagentx.TYPE_OCTETSTRING, "String for 100 MIB")
 
     def update2(self):
-        self.append('1.0', agentx.TYPE_COUNTER32, int(time.time()))
-        self.append('2.0', agentx.TYPE_COUNTER32, 2000)
-        self.append('3.0', agentx.TYPE_OCTETSTRING, "String for 200 MIB")
+        self.append('1.0', pyagentx.TYPE_COUNTER32, int(time.time()))
+        self.append('2.0', pyagentx.TYPE_COUNTER32, 2000)
+        self.append('3.0', pyagentx.TYPE_OCTETSTRING, "String for 200 MIB")
 
 
 def setup_login():
-    logger = logging.getLogger('agentx')
+    logger = logging.getLogger('pyagentx')
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     ch = logging.StreamHandler()

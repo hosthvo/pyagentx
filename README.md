@@ -1,6 +1,6 @@
 ## Python AgentX Implementation
 
-Python-AgentX is pure Python implementation of AgentX protocol (RFC 2741), it will allow you to extend SNMP agent (snmpd) by writing AgentX subagents, without modifying your original SNMP agent.
+''pyagentx'' is pure Python implementation of AgentX protocol (RFC 2741), it will allow you to extend SNMP agent (snmpd) by writing AgentX subagents, without modifying your original SNMP agent.
 
 Some SNMP agents can be extended using many mechanisms, e.g. net-snmp can be extended using:
 
