@@ -1,18 +1,15 @@
 #!/usr/bin/env python
 
-
-import sys
 import socket
-import struct
 import logging
 import time
-from pprint import pprint 
 
 import pyagentx
 from pyagentx.pdu import PDU
 
 
 logger = logging.getLogger('pyagentx.agent')
+logger.addHandler(logging.NullHandler())
 
 class Agent(object):
 

@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
 
-import sys
-import socket 
 import struct
 from pprint import pprint
 
@@ -59,7 +57,7 @@ class PDU(object):
 
     def encode_octet(self, octet):
         buf = struct.pack('!L', len(octet))
-        buf += octet
+        buf += str(octet)
         padding = 4 - (len(octet)%4)
         buf += chr(0)* padding
         return buf
@@ -80,7 +78,7 @@ class PDU(object):
             # No data
             pass
         else:
-            print "Unknow Type:", vtype
+            print "Unknown Type:", type
         return buf
 
 
@@ -239,7 +237,7 @@ class PDU(object):
             self.decode_buf = self.decode_buf[:ret['payload_length']]
             if ret['flags'] & 0x08:  # content present
                 context = self.decode_octet() 
-                print "Context:", conext
+                print "Context:", context
             return ret
         except Exception, e:
             print e
