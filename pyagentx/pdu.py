@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 
 
 import struct
@@ -210,7 +212,7 @@ class PDU(object):
             # No data
             data = None
         else:
-            print "Unknow Type:", vtype
+            print "Unknown Type:", vtype
         return {'type':vtype, 'name':oid, 'data':data}
 
 

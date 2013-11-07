@@ -54,7 +54,15 @@ def setup_login():
 def main():
     setup_login()
     a = MyAgent()
-    a.start()
+    try:
+        #a.debug = 0
+        a.start()
+    except:
+        #exiting main loop'
+        pass
+    finally:
+        # call stop to end all async registred threads
+        a.stop()
 
 
 if __name__=="__main__":
