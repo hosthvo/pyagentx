@@ -58,7 +58,7 @@ class PDU(object):
     def encode_octet(self, octet):
         buf = struct.pack('!L', len(octet))
         buf += str(octet)
-        padding = 4 - (len(octet)%4)
+        padding = ( 4 - ( len(octet) % 4 ) ) % 4
         buf += chr(0)* padding
         return buf
 
