@@ -68,7 +68,9 @@ class PDU(object):
     def encode_value(self, type, name, value):
         buf = struct.pack('!HH', type, 0)
         buf += self.encode_oid(name)
-        if type in [pyagentx.TYPE_INTEGER, pyagentx.TYPE_COUNTER32, pyagentx.TYPE_GAUGE32, pyagentx.TYPE_TIMETICKS]:
+        if type in [pyagentx.TYPE_INTEGER]:
+            buf += struct.pack('!l', value)
+        elif type in [pyagentx.TYPE_COUNTER32, pyagentx.TYPE_GAUGE32, pyagentx.TYPE_TIMETICKS]:
             buf += struct.pack('!L', value)
         elif type in [pyagentx.TYPE_COUNTER64]:
             buf += struct.pack('!Q', value)
