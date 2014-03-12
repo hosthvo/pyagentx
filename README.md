@@ -57,4 +57,3 @@ To help debugging AgentX protocol run snmpd in foreground debug mode:
 
 * Ping agentx master periodically.
 * Helper function for tables.
-* Tick isn't really once per second, need fixing.
