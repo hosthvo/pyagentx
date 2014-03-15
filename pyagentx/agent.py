@@ -7,9 +7,9 @@ import socket
 import logging
 import time
 import threading
-
 import pyagentx
 
+from inspect import stack
 from pyagentx.pdu import PDU
 
 
@@ -53,12 +53,11 @@ class Agent(object):
         self.debug = 1
         # Data Related Variables
         self.register_list = {}
+        self.caller_oid_list = {}
         self.repeated_timer_list = []
         self.data = {}        
         self.data_idx = []
         self.datalock = threading.Lock()
-        # eventual no longer needed:
-        self.ticker = -1  # increment each tick (second)
 
     def _connect(self):
         while 1:
@@ -104,40 +103,26 @@ class Agent(object):
         # override this to register mib
         pass
 
-    def tick(self):
-        # Old tick function, i leave it until the new dyntick is accepted
-        logger.debug("tick")
-        updated = False
-        self.ticker += 1
-        for row in self.register_list.itervalues():
-            if self.ticker % row['freq'] == 0:
-                logger.info("Update: %s" % (row['oid']))
-                updated = True
-                self._base_oid = row['oid']
-                row['callback']()
-        if updated:
-            # recalculate reverse index if data changed
-            self.data_idx = sorted(self.data.keys(), key=lambda k: tuple(int(part) for part in k.split('.')))
-
     def dyntick(self,oid):
         logger.debug("dyntick")
         actoid = self.register_list.get(oid,None)
         if actoid:
                 logger.info("Update: %s" % (actoid['oid']))
-                self._base_oid = actoid['oid']
                 actoid['callback']()
                 # recalculate reverse index if data changed
                 self.data_idx = sorted(self.data.keys(), key=lambda k: tuple(int(part) for part in k.split('.')))
 
-
     def register(self, oid, callback, freq=5):
         self.repeated_timer_list.append(RepeatedTimer(freq, self.dyntick, oid)) 
         self.register_list[oid] = {'oid':oid, 'callback':callback, 'freq': freq}
+        callback_name = callback.__name__
+        self.caller_oid_list[callback_name] = oid
 
     def append(self, oid, type, value):
         # since append can be called from parallel dyntick callbacks, we need to lock it
         with self.datalock:
-            oid = "%s.%s" % (self._base_oid, oid)
+            caller_name = stack()[1][3]
+            oid = "%s.%s" % (self.caller_oid_list[caller_name], oid)
             self.data[oid] = {'name': oid, 'type':type, 'value':value}
 
     def get_next_oid(self, oid, endoid):
@@ -168,8 +153,6 @@ class Agent(object):
                     return tmp_oid
             return None # No match!
     
-    # =========================================
-
     def start(self):
         self.setup()
         while 1:
@@ -179,13 +162,10 @@ class Agent(object):
                 logger.error("Network error, master disconnect?!")
                 pass
 
-
     def stop(self):
         logger.info('Stopping async timers')
         for timer in self.repeated_timer_list:
             timer.stop()
-
-
 
     def _start_network(self):
         self._connect()
