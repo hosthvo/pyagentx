@@ -125,6 +125,18 @@ class Agent(object):
             oid = "%s.%s" % (self.caller_oid_list[caller_name], oid)
             self.data[oid] = {'name': oid, 'type':type, 'value':value}
 
+    def clear(self, oid=None):
+        # since clear can be called from parallel dyntick callbacks, we need to lock it
+        with self.datalock:
+            caller_name = stack()[1][3]
+            if oid != None:
+                oid = "%s.%s" % (self.caller_oid_list[caller_name], oid)
+            else:
+                oid = "%s" % self.caller_oid_list[caller_name]
+            for i in self.data.keys():
+                if i.startswith(oid):
+                    del self.data[i]
+
     def get_next_oid(self, oid, endoid):
         if oid in self.data:
             # Exact match found
