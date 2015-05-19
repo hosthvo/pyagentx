@@ -136,6 +136,8 @@ class Agent(object):
             for i in self.data.keys():
                 if i.startswith(oid):
                     del self.data[i]
+            # recalculate reverse index if data changed
+            self.data_idx = sorted(self.data.keys(), key=lambda k: tuple(int(part) for part in k.split('.')))
 
     def get_next_oid(self, oid, endoid):
         if oid in self.data:
