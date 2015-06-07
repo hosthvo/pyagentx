@@ -13,8 +13,12 @@ from inspect import stack
 from pyagentx.pdu import PDU
 
 
+class NullHandler(logging.Handler):
+    def emit(self, record):
+        pass
+
 logger = logging.getLogger('pyagentx.agent')
-logger.addHandler(logging.NullHandler())
+logger.addHandler(NullHandler())
 
 
 
