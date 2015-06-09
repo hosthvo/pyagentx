@@ -40,9 +40,12 @@ To help debugging AgentX protocol run snmpd in foreground debug mode:
     sudo /usr/sbin/snmpd -f -Lsd  -Dagentx -Le -u snmp -g snmp -I -smux -p /var/run/snmpd.pid
 
 
-### Test It
+### Example Agent
 
-Run the sub agent and keep it running:
+To test the implementation I wrote an example agent that implement small part of 
+[NET-SNMP-EXAMPLES-MIB] (http://www.net-snmp.org/docs/mibs/NET-SNMP-EXAMPLES-MIB.txt)
+
+To run the sub agent:
 
 	sudo ./main.py 
 
