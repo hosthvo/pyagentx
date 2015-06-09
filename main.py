@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 
 """
@@ -16,23 +17,18 @@ snmpwalk -v2c -c public localhost .1.3.6.1.3.9999
 
 """
 
-import logging
 import time
-
 import pyagentx
-from pyagentx.pdu import PDU
-from pyagentx.updater import Updater
-from pyagentx.agent import Agent
 
 
-class Update(Updater):
+class Update(pyagentx.Updater):
 
     def update(self):
         self.setCounter32('1.0', 1000)
         self.setCounter32('2.0', 2000)
         self.setOctetstring('3.0', 'String for 100 MIB')
 
-class Update2(Updater):
+class Update2(pyagentx.Updater):
 
     def update(self):
         self.setCounter32('1.0', int(time.time()))
@@ -40,24 +36,15 @@ class Update2(Updater):
         self.setOctetstring('3.0', 'String for 200 MIB')
 
 
-class MyAgent(Agent):
+class MyAgent(pyagentx.Agent):
 
     def setup(self):
         self.register('1.3.6.1.3.9999.100', Update)
         self.register('1.3.6.1.3.9999.200', Update2, 5)
 
 
-def setup_login():
-    logger = logging.getLogger('pyagentx')
-    logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-
 def main():
-    setup_login()
+    pyagentx.setup_login()
     try:
         a = MyAgent()
         a.start()

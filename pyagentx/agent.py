@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import time
 import logging
+import time
 import Queue
 
 import pyagentx

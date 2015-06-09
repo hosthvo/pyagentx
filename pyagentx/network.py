@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import socket
 import logging
+import socket
 import time
 import threading
 import Queue

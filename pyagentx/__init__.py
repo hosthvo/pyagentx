@@ -1,8 +1,21 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
+import logging
+
+from pyagentx.updater import Updater
+from pyagentx.agent import Agent
+
+def setup_login():
+    logger = logging.getLogger('pyagentx')
+    logger.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
 
 SOCKET_PATH = "/var/agentx/master"
-
 
 AGENTX_EMPTY_PDU            = 1
 AGENTX_OPEN_PDU             = 1
