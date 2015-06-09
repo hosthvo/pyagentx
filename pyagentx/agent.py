@@ -40,7 +40,8 @@ class Agent(object):
         # Start Updaters
         for u in self._updater_list:
             logger.debug('Starting updater [%s]' % u['oid'])
-            t = u['class'](queue, u['oid'], u['freq'])
+            t = u['class']()
+            t.agent_setup(queue, u['oid'], u['freq'])
             t.start()
             self._threads.append(t)
         # Start Network

@@ -18,8 +18,7 @@ logger.addHandler(NullHandler())
 
 class Updater(threading.Thread):
 
-    def __init__(self, queue, oid, freq):
-        threading.Thread.__init__(self)
+    def agent_setup(self, queue, oid, freq):
         self.stop = threading.Event()
         self._queue = queue
         self._oid = oid
