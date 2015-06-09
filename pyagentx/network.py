@@ -168,7 +168,7 @@ class Network(threading.Thread):
 
             response = self.response_pdu(request)
             if request.type == pyagentx.AGENTX_GET_PDU:
-                logger.debug("Received GET PDU")
+                logger.info("Received GET PDU")
                 for rvalue in request.range_list:
                     oid = rvalue[0]
                     logger.debug("OID: %s" % (oid))
@@ -180,7 +180,7 @@ class Network(threading.Thread):
                         response.values.append({'type':pyagentx.TYPE_NOSUCHOBJECT, 'name':rvalue[0], 'value':0})
 
             elif request.type == pyagentx.AGENTX_GETNEXT_PDU:
-                logger.debug("Received GET_NEXT PDU")
+                logger.info("Received GET_NEXT PDU")
                 for rvalue in request.range_list:
                     oid = self._get_next_oid(rvalue[0],rvalue[1])
                     logger.debug("GET_NEXT: %s => %s" % (rvalue[0], oid))

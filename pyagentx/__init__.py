@@ -6,12 +6,16 @@ import logging
 from pyagentx.updater import Updater
 from pyagentx.agent import Agent
 
-def setup_login():
+def setup_login(debug=False):
+    if debug:
+        level = logging.DEBUG
+    else:
+        level = logging.INFO
     logger = logging.getLogger('pyagentx')
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(level)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
+    ch.setLevel(level)
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 

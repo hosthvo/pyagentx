@@ -31,7 +31,7 @@ class Updater(threading.Thread):
             if self.stop.is_set(): break
             now = time.time()
             if now - start_time > self._freq:
-                logger.debug('Updating :%s' % self._oid)
+                logger.info('Updating : %s (%s)' % (self.__class__.__name__, self._oid))
                 start_time = now
                 self._data = {}
                 self.update()
