@@ -20,28 +20,42 @@ snmpwalk -v2c -c public localhost .1.3.6.1.3.9999
 import time
 import pyagentx
 
+def str_to_oid(data):
+    length = len(data)
+    oid_int = [str(ord(i)) for i in data]
+    return str(length) + '.' + '.'.join(oid_int)
 
-class Update(pyagentx.Updater):
+
+print str_to_oid('test')
+
+class NetSnmpTestMibScalar(pyagentx.Updater):
 
     def update(self):
-        self.set_COUNTER32('1.0', 1000)
-        self.set_COUNTER32('2.0', 2000)
-        self.set_OCTETSTRING('3.0', 'String for 100 MIB')
+        self.set_INTEGER('1.0', 1000)
+        self.set_OCTETSTRING('3.0', 'String for NET-SNMP-EXAMPLES-MIB')
 
-class Update2(pyagentx.Updater):
+
+class NetSnmpTestMibTable(pyagentx.Updater):
 
     def update(self):
-        self.set_COUNTER32('1.0', int(time.time()))
-        self.set_COUNTER32('2.0', 2000)
-        self.set_OCTETSTRING('3.0', 'String for 200 MIB')
+        # implement netSnmpIETFWGTable from NET-SNMP-EXAMPLES-MIB.txt
+        idx = str_to_oid('group1')
+        #self.set_OCTETSTRING('1.1.1.' + idx, 'group 1')
+        self.set_OCTETSTRING('1.1.2.' + idx, 'member 1')
+        self.set_OCTETSTRING('1.1.3.' + idx, 'member 2')
+
+        idx = str_to_oid('group2')
+        #self.set_OCTETSTRING('1.1.1.' + idx, 'group 2')
+        self.set_OCTETSTRING('1.1.2.' + idx, 'member 1')
+        self.set_OCTETSTRING('1.1.3.' + idx, 'member 2')
+
 
 
 class MyAgent(pyagentx.Agent):
 
     def setup(self):
-        self.register('1.3.6.1.3.9999.100', Update)
-        self.register('1.3.6.1.3.9999.200', Update2, 5)
-
+        self.register('1.3.6.1.4.1.8072.2.1', NetSnmpTestMibScalar)
+        self.register('1.3.6.1.4.1.8072.2.2', NetSnmpTestMibTable)
 
 def main():
     pyagentx.setup_login()

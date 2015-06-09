@@ -32,7 +32,8 @@ You need to make sure the SNMP agent (snmpd) will act as AgentX master:
 
 Also make sure the SNMP agent accept requests for your MIB region:
 
-    view   systemonly  included   .1.3.6.1.3.9999   # CHANGE ACCORDINGLY
+    # NET-SNMP-EXAMPLES-MIB
+    view   systemview  included   .1.3.6.1.4.1.8072.2
 
 To help debugging AgentX protocol run snmpd in foreground debug mode:
 
@@ -45,17 +46,22 @@ Run the sub agent and keep it running:
 
 	sudo ./main.py 
 
-Then from another terminal query the master SNMP agent:
+Then from another terminal query the master SNMP agent.
 
-    $ snmpwalk -v2c -c public localhost .1.3.6.1.3.9999
-    SNMPv2-SMI::experimental.9999.100.1.0 = Counter32: 1000
-	SNMPv2-SMI::experimental.9999.100.2.0 = Counter32: 2000
-	SNMPv2-SMI::experimental.9999.100.3.0 = STRING: "String for 100 MIB"
-	SNMPv2-SMI::experimental.9999.200.1.0 = Counter32: 1433822190
-	SNMPv2-SMI::experimental.9999.200.2.0 = Counter32: 2000
-	SNMPv2-SMI::experimental.9999.200.3.0 = STRING: "String for 200 MIB"
-	SNMPv2-SMI::experimental.9999.200.3.0 = No more variables left in this MIB View (It is past the end of the MIB tree)
+Scalar example:
 
+    $ snmpwalk -v 2c -c public localhost NET-SNMP-EXAMPLES-MIB::netSnmpExampleScalars
+    NET-SNMP-EXAMPLES-MIB::netSnmpExampleInteger.0 = INTEGER: 1000
+    NET-SNMP-EXAMPLES-MIB::netSnmpExampleString.0 = STRING: String for NET-SNMP-EXAMPLES-MIB
+
+Table example:
+
+    $ snmptable -v 2c -c public -Ci localhost NET-SNMP-EXAMPLES-MIB::netSnmpIETFWGTable 
+    SNMP table: NET-SNMP-EXAMPLES-MIB::netSnmpIETFWGTable
+    
+       index nsIETFWGChair1 nsIETFWGChair2
+    "group1"     "member 1"     "member 2"
+    "group2"     "member 1"     "member 2"
 
 
 ### FAQ
