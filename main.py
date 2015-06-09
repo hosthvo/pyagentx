@@ -18,6 +18,7 @@ snmpwalk -v2c -c public localhost .1.3.6.1.3.9999
 """
 
 import time
+import random
 import pyagentx
 
 def str_to_oid(data):
@@ -25,8 +26,6 @@ def str_to_oid(data):
     oid_int = [str(ord(i)) for i in data]
     return str(length) + '.' + '.'.join(oid_int)
 
-
-print str_to_oid('test')
 
 class NetSnmpTestMibScalar(pyagentx.Updater):
 
@@ -39,16 +38,12 @@ class NetSnmpTestMibTable(pyagentx.Updater):
 
     def update(self):
         # implement netSnmpIETFWGTable from NET-SNMP-EXAMPLES-MIB.txt
-        idx = str_to_oid('group1')
-        #self.set_OCTETSTRING('1.1.1.' + idx, 'group 1')
-        self.set_OCTETSTRING('1.1.2.' + idx, 'member 1')
-        self.set_OCTETSTRING('1.1.3.' + idx, 'member 2')
-
-        idx = str_to_oid('group2')
-        #self.set_OCTETSTRING('1.1.1.' + idx, 'group 2')
-        self.set_OCTETSTRING('1.1.2.' + idx, 'member 1')
-        self.set_OCTETSTRING('1.1.3.' + idx, 'member 2')
-
+        # Number of entries in table is random to show that MIB is reset
+        # on every update
+        for i in range(random.randint(3, 5)):
+            idx = str_to_oid('group%s' % (i+1))
+            self.set_OCTETSTRING('1.1.2.' + idx, 'member 1')
+            self.set_OCTETSTRING('1.1.3.' + idx, 'member 2')
 
 
 class MyAgent(pyagentx.Agent):
