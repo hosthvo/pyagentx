@@ -39,7 +39,7 @@ class Network(threading.Thread):
             try:
                 self.socket = socket.socket( socket.AF_UNIX, socket.SOCK_STREAM )
                 self.socket.connect(pyagentx.SOCKET_PATH)
-                self.socket.settimeout(1)
+                self.socket.settimeout(0.1)
                 return
             except socket.error:
                 logger.error("Failed to connect, sleeping and retrying later")

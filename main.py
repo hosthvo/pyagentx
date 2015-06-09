@@ -24,16 +24,16 @@ import pyagentx
 class Update(pyagentx.Updater):
 
     def update(self):
-        self.setCounter32('1.0', 1000)
-        self.setCounter32('2.0', 2000)
-        self.setOctetstring('3.0', 'String for 100 MIB')
+        self.set_COUNTER32('1.0', 1000)
+        self.set_COUNTER32('2.0', 2000)
+        self.set_OCTETSTRING('3.0', 'String for 100 MIB')
 
 class Update2(pyagentx.Updater):
 
     def update(self):
-        self.setCounter32('1.0', int(time.time()))
-        self.setCounter32('2.0', 2000)
-        self.setOctetstring('3.0', 'String for 200 MIB')
+        self.set_COUNTER32('1.0', int(time.time()))
+        self.set_COUNTER32('2.0', 2000)
+        self.set_OCTETSTRING('3.0', 'String for 200 MIB')
 
 
 class MyAgent(pyagentx.Agent):
