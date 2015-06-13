@@ -21,25 +21,30 @@ import time
 
 import pyagentx
 from pyagentx.pdu import PDU
+from pyagentx.updater import Updater
 from pyagentx.agent import Agent
 
+
+class Update(Updater):
+
+    def update(self):
+        self.setCounter32('1.0', 1000)
+        self.setCounter32('2.0', 2000)
+        self.setOctetstring('3.0', 'String for 100 MIB')
+
+class Update2(Updater):
+
+    def update(self):
+        self.setCounter32('1.0', int(time.time()))
+        self.setCounter32('2.0', 2000)
+        self.setOctetstring('3.0', 'String for 200 MIB')
 
 
 class MyAgent(Agent):
 
     def setup(self):
-        self.register('1.3.6.1.3.9999.100', self.update)
-        self.register('1.3.6.1.3.9999.200', self.update2, 10)
-
-    def update(self):
-        self.append('1.0', pyagentx.TYPE_COUNTER32, 1000)
-        self.append('2.0', pyagentx.TYPE_COUNTER32, 2000)
-        self.append('3.0', pyagentx.TYPE_OCTETSTRING, "String for 100 MIB")
-
-    def update2(self):
-        self.append('1.0', pyagentx.TYPE_COUNTER32, int(time.time()))
-        self.append('2.0', pyagentx.TYPE_COUNTER32, 2000)
-        self.append('3.0', pyagentx.TYPE_OCTETSTRING, "String for 200 MIB")
+        self.register('1.3.6.1.3.9999.100', Update)
+        self.register('1.3.6.1.3.9999.200', Update2, 1)
 
 
 def setup_login():
@@ -53,17 +58,15 @@ def setup_login():
 
 def main():
     setup_login()
-    a = MyAgent()
     try:
-        #a.debug = 0
+        a = MyAgent()
         a.start()
-    except:
-        #exiting main loop'
-        pass
-    finally:
-        # call stop to end all async registred threads
+    except Exception as e:
+        print "Unhandled exception:", e
         a.stop()
-
+    except KeyboardInterrupt:
+        a.stop()
 
 if __name__=="__main__":
     main()
+
