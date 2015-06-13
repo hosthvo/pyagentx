@@ -44,7 +44,7 @@ class MyAgent(Agent):
 
     def setup(self):
         self.register('1.3.6.1.3.9999.100', Update)
-        self.register('1.3.6.1.3.9999.200', Update2, 1)
+        self.register('1.3.6.1.3.9999.200', Update2, 5)
 
 
 def setup_login():
