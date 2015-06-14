@@ -24,6 +24,16 @@ Currently the code is capable of the following:
 * Reconnect/Retry to master, in case the master restarted
 
 
+### Installation
+
+The package is registered on [Python Package Index](https://pypi.python.org/) under the name 
+"pyagentx" [https://pypi.python.org/pypi/pyagentx](https://pypi.python.org/pypi/pyagentx)
+
+You can install it by simply running:
+
+    pip install pyagentx
+
+
 ### SNMP Agent Configuration
 
 You need to make sure the SNMP agent (snmpd) will act as AgentX master:
@@ -70,12 +80,15 @@ Table example:
 ### FAQ
 
 - What's the difference between AgentX, SMUX and proxied SNMP?
-  Check the anser [here] 
-  (http://net-snmp.sourceforge.net/wiki/index.php/FAQ:Agent_08)
+
+  Check the answer [here](http://net-snmp.sourceforge.net/wiki/index.php/FAQ:Agent_08)
 - What is advatages of extending SNMP using agentx instead of something like "pass\_perssist"?
+
   I started pyagentx because I couldn't write a DateAndTime value using "pass\_perssist" which can't handle binary data very well.
   Another important reason is the decouple of master SNMP agent and its sub agents, which means you can start/stop one without affecting the other, and you don't have to change the snmpd.conf every time you want to add or remove a sub agent.
+
 - Why do I need sudo to run my agentx agent?
+
   By default "snmpd" uses UNIX socket to communicate with agentx sub agents, it uses special permisssions to prevent unauthorized agents.  
   If you don't want to use "root" to run the agent you can use "agentXPerms" directive in snmpd.conf, check the man page for its options.
   
