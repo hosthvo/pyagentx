@@ -1,21 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+'''
 
-"""
+Rayed Alrashed 2015-06-14
 
-Rayed Alrashed  2013-10-09
+AgentX sub agent paackge
 
-AgentX sub agent library
+snmpwalk -v 2c -c public localhost NET-SNMP-EXAMPLES-MIB::netSnmpExampleScalars
+snmptable -v 2c -c public -Ci localhost NET-SNMP-EXAMPLES-MIB::netSnmpIETFWGTable 
+SNMP table: NET-SNMP-EXAMPLES-MIB::netSnmpIETFWGTable
 
-To help debugging run snmpd in foreground debug mode:
-sudo /usr/sbin/snmpd -f -Lsd  -Dagentx -Le -u snmp -g snmp -I -smux -p /var/run/snmpd.pid
-
-
-snmpget  -v2c -c public localhost .1.3.6.1.3.9999.100.1.0
-snmpwalk -v2c -c public localhost .1.3.6.1.3.9999
-
-"""
+'''
 
 import time
 import random
@@ -52,8 +48,9 @@ class MyAgent(pyagentx.Agent):
         self.register('1.3.6.1.4.1.8072.2.1', NetSnmpTestMibScalar)
         self.register('1.3.6.1.4.1.8072.2.2', NetSnmpTestMibTable)
 
+
 def main():
-    pyagentx.setup_login()
+    pyagentx.setup_logging()
     try:
         a = MyAgent()
         a.start()

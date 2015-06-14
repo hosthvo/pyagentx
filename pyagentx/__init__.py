@@ -6,7 +6,7 @@ import logging
 from pyagentx.updater import Updater
 from pyagentx.agent import Agent
 
-def setup_login(debug=False):
+def setup_logging(debug=False):
     if debug:
         level = logging.DEBUG
     else:
