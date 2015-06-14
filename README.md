@@ -47,7 +47,7 @@ To test the implementation I wrote an example agent that implement small part of
 
 To run the sub agent:
 
-	sudo ./main.py 
+	sudo ./example-agent.py 
 
 Then from another terminal query the master SNMP agent.
 
