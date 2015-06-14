@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name = "pyagentx",
-    version = "0.0.1",
+    version = "0.2",
     author = "Rayed Alrashed",
     author_email = "rayed@rayed.com",
     description = ("AgentX package to extend SNMP with pure Python"),
