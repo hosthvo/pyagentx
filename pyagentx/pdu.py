@@ -206,9 +206,11 @@ class PDU(object):
         oid,_ = self.decode_oid()
         if vtype in [pyagentx.TYPE_INTEGER, pyagentx.TYPE_COUNTER32, pyagentx.TYPE_GAUGE32, pyagentx.TYPE_TIMETICKS]:
             data = struct.unpack('!L', self.decode_buf[:4])
+            data = data[0]
             self.decode_buf = self.decode_buf[4:]
         elif vtype in [pyagentx.TYPE_COUNTER64]:
             data = struct.unpack('!Q', self.decode_buf[:8])
+            data = data[0]
             self.decode_buf = self.decode_buf[8:]
         elif vtype in [pyagentx.TYPE_OBJECTIDENTIFIER]:
             data,_ = self.decode_oid()
@@ -276,6 +278,16 @@ class PDU(object):
         elif ret['pdu_type'] == pyagentx.AGENTX_GETNEXT_PDU:
             self.range_list = self.decode_search_range_list()
 
+        elif ret['pdu_type'] == pyagentx.AGENTX_TESTSET_PDU:
+            # Decode VarBindList
+            self.values = []
+            while len(self.decode_buf):
+                self.values.append(self.decode_value())
+        elif ret['pdu_type'] in [pyagentx.AGENTX_COMMITSET_PDU,
+                                 pyagentx.AGENTX_UNDOSET_PDU,
+                                 pyagentx.AGENTX_CLEANUPSET_PDU]:
+            pass
         else:
-            logger.error('Unsupported PDU type')
+            pdu_type_str = pyagentx.PDU_TYPE_NAME.get(ret['pdu_type'], 'Unknown:'+ str(ret['pdu_type']))
+            logger.error('Unsupported PDU type:'+ pdu_type_str)
 

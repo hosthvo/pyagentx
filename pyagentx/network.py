@@ -189,6 +189,18 @@ class Network(threading.Thread):
                     else:
                         response.values.append({'type':pyagentx.TYPE_ENDOFMIBVIEW, 'name':rvalue[0], 'value':0})
 
+            elif request.type == pyagentx.AGENTX_TESTSET_PDU:
+                logger.info("Received TESTSET PDU")
+                for row in request.values:
+                    row['type_name'] = pyagentx.TYPE_NAME.get(row['type'], 'Unknown type')
+                    logger.info("Name: [%(name)s] Value: [%(data)s] Type: [%(type_name)s]" % row)
+            elif request.type == pyagentx.AGENTX_COMMITSET_PDU:
+                logger.info("Received COMMITSET PDU")
+            elif request.type == pyagentx.AGENTX_UNDOSET_PDU:
+                logger.info("Received UNDOSET PDU")
+            elif request.type == pyagentx.AGENTX_CLEANUPSET_PDU:
+                logger.info("Received CLEANUP PDU")
+
             self.send_pdu(response)
 
 
