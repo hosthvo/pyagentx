@@ -46,7 +46,7 @@ To implement agent you need to provide one "Agent" class and one or more "Update
     import pyagentx
 
 	# Updater class that set OID values    
-    class NetSnmpTestMibScalar(pyagentx.Updater):
+    class NetSnmpPlaypen(pyagentx.Updater):
         def update(self):
             self.set_INTEGER('1.0', 1000)
             self.set_OCTETSTRING('3.0', 'String for NET-SNMP-EXAMPLES-MIB')
@@ -62,7 +62,7 @@ To implement agent you need to provide one "Agent" class and one or more "Update
 	# the tree under: 1.3.6.1.4.1.8072.9999.9999
 	class MyAgent(pyagentx.Agent):
 	    def setup(self):
-	        self.register('1.3.6.1.4.1.8072.9999.9999', NetSnmpTestMibScalar)
+	        self.register('1.3.6.1.4.1.8072.9999.9999', NetSnmpPlaypen)
 
 	# Main 
     pyagentx.setup_logging()
