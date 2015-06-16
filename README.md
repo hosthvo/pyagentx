@@ -59,10 +59,10 @@ To implement agent you need to provide one "Agent" class and one or more "Update
             self.set_COUNTER32('10.0', 2000)
 
 	# Register Updater class that responsd to
-	# the tree under: 1.3.6.1.4.1.8072.2.1 
+	# the tree under: 1.3.6.1.4.1.8072.9999.9999
 	class MyAgent(pyagentx.Agent):
 	    def setup(self):
-	        self.register('1.3.6.1.4.1.8072.2.1', NetSnmpTestMibScalar)
+	        self.register('1.3.6.1.4.1.8072.9999.9999', NetSnmpTestMibScalar)
 
 	# Main 
     pyagentx.setup_logging()
@@ -74,6 +74,10 @@ To implement agent you need to provide one "Agent" class and one or more "Update
         a.stop()
     except KeyboardInterrupt:
         a.stop()
+
+To test:
+
+    snmpwalk -v 2c -c public localhost NET-SNMP-MIB::netSnmpPlaypen
 
 
 ## Example Agent
@@ -104,6 +108,20 @@ Table example:
 
 
 ## FAQ
+
+
+### What OID should I my tree use?
+
+If you are just playing and experminting you can use put everything under "NET-SNMP-MIB::netSnmpPlaypen" OID "1.3.6.1.4.1.8072.9999.9999" tree, but you shouldn't use it for any public work.
+
+If you need publish your work you should apply for your own enterprise OID on the IANA [PEN Application page](http://pen.iana.org/pen/PenApplication.page), this will give you your own private tree, e.g. Net-Snmp uses 1.3.6.1.4.1.8072, Google uses 1.3.6.1.4.1.11129
+
+So your company would have an OID 1.3.6.1.4.1.xxxxx
+
+You also need to write your own MIB to allow your customer to use in thier Network Managment System (NMS):
+
+<http://www.net-snmp.org/wiki/index.php/Writing_your_own_MIBs>
+
 
 ### Is there other ways to extend SNMP agent?
 

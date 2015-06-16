@@ -16,10 +16,10 @@ class NetSnmpTestMibScalar(pyagentx.Updater):
         self.set_COUNTER32('10.0', 2000)
 
 # Register Updater class that responsd to
-# the tree under: 1.3.6.1.4.1.8072.2.1 
+# the tree under: 1.3.6.1.4.1.8072.9999.9999
 class MyAgent(pyagentx.Agent):
     def setup(self):
-        self.register('1.3.6.1.4.1.8072.2.1', NetSnmpTestMibScalar)
+        self.register('1.3.6.1.4.1.8072.9999.9999', NetSnmpTestMibScalar)
 
 # Main 
 pyagentx.setup_logging()
