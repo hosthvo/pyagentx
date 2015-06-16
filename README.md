@@ -50,6 +50,13 @@ To implement agent you need to provide one "Agent" class and one or more "Update
         def update(self):
             self.set_INTEGER('1.0', 1000)
             self.set_OCTETSTRING('3.0', 'String for NET-SNMP-EXAMPLES-MIB')
+            self.set_OBJECTIDENTIFIER('4.0', '1.2')
+            self.set_IPADDRESS('5.0', '127.0.0.1')
+            self.set_COUNTER32('6.0', 2000)
+            self.set_GAUGE32('7.0', 2000)
+            self.set_TIMETICKS('8.0', 1000000)
+            self.set_OPAQUE('9.0', 'Test')
+            self.set_COUNTER32('10.0', 2000)
 
 	# Register Updater class that responsd to
 	# the tree under: 1.3.6.1.4.1.8072.2.1 
