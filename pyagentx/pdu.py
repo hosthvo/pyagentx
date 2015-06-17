@@ -23,6 +23,8 @@ class PDU(object):
         self.session_id = 0
         self.transaction_id = 0
         self.packet_id = 0
+        self.error = pyagentx.ERROR_NOAGENTXERROR
+        self.error_index = 0
         self.decode_buf = ''
         self.state = {}
         self.values = []
@@ -126,7 +128,7 @@ class PDU(object):
             buf += self.encode_oid(self.oid)
 
         elif self.type == pyagentx.AGENTX_RESPONSE_PDU:
-            buf += struct.pack('!LHH', 0, pyagentx.ERROR_NOAGENTXERROR, 0)
+            buf += struct.pack('!LHH', 0, self.error, self.error_index)
             for value in self.values:
                 buf += self.encode_value(value['type'], value['name'], value['value'])
 
