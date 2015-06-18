@@ -1,19 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# --------------------------------------------
 import logging
+class NullHandler(logging.Handler):
+    def emit(self, record):
+        pass
+logger = logging.getLogger('pyagentx.updater')
+logger.addHandler(NullHandler())
+# --------------------------------------------
+
 import time
 import threading
 import Queue
 
 import pyagentx
-
-class NullHandler(logging.Handler):
-    def emit(self, record):
-        pass
-
-logger = logging.getLogger('pyagentx.updater')
-logger.addHandler(NullHandler())
 
 
 class Updater(threading.Thread):

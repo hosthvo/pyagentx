@@ -5,6 +5,7 @@ import logging
 
 from pyagentx.updater import Updater
 from pyagentx.agent import Agent
+from pyagentx.sethandler import SetHandler, SetHandlerError
 
 def setup_logging(debug=False):
     if debug:

@@ -14,7 +14,8 @@ Currently the code is capable of the following:
 * Send Ping request.
 * Register multiple MIB regions.
 * Multiple MIB update classes with custom frequency for each.
-* Reconnect/Retry to master, in case the master restarted
+* Support snmpset operations.
+* Reconnect/Retry to master, in case the master restarted.
 
 
 ## Installation
@@ -45,26 +46,19 @@ To implement agent you need to provide one "Agent" class and one or more "Update
 
     import pyagentx
 
-	# Updater class that set OID values    
+    # Updater class that set OID values
     class NetSnmpPlaypen(pyagentx.Updater):
         def update(self):
             self.set_INTEGER('1.0', 1000)
             self.set_OCTETSTRING('3.0', 'String for NET-SNMP-EXAMPLES-MIB')
-            self.set_OBJECTIDENTIFIER('4.0', '1.2')
-            self.set_IPADDRESS('5.0', '127.0.0.1')
-            self.set_COUNTER32('6.0', 2000)
-            self.set_GAUGE32('7.0', 2000)
-            self.set_TIMETICKS('8.0', 1000000)
-            self.set_OPAQUE('9.0', 'Test')
-            self.set_COUNTER32('10.0', 2000)
 
-	# Register Updater class that responsd to
-	# the tree under: 1.3.6.1.4.1.8072.9999.9999
-	class MyAgent(pyagentx.Agent):
-	    def setup(self):
-	        self.register('1.3.6.1.4.1.8072.9999.9999', NetSnmpPlaypen)
+    class MyAgent(pyagentx.Agent):
+        def setup(self):
+            # Register Updater class that responsd to
+            # the tree under "netSnmpPlaypen": 1.3.6.1.4.1.8072.9999.9999
+            self.register('1.3.6.1.4.1.8072.9999.9999', NetSnmpPlaypen)
 
-	# Main 
+    # Main 
     pyagentx.setup_logging()
     try:
         a = MyAgent()
@@ -82,12 +76,12 @@ To test:
 
 ## Example Agent
 
-To test the implementation I wrote an example agent that implement small part of 
-[NET-SNMP-EXAMPLES-MIB] (http://www.net-snmp.org/docs/mibs/NET-SNMP-EXAMPLES-MIB.txt)
+To test the implementation I wrote an example agent that implement small parts of 
+[NET-SNMP-EXAMPLES-MIB](http://www.net-snmp.org/docs/mibs/NET-SNMP-EXAMPLES-MIB.txt) including a table.
 
 To run the sub agent:
 
-	sudo ./example-agent.py 
+    sudo ./example-agent.py 
 
 Then from another terminal query the master SNMP agent.
 
@@ -106,15 +100,26 @@ Table example:
     "group1"     "member 1"     "member 2"
     "group2"     "member 1"     "member 2"
 
+SNMP Set example:
+
+    $ snmpset -v 2c -c public localhost NET-SNMP-EXAMPLES-MIB::netSnmpExampleInteger.0 i 10
+    # pass without errors, if not check snmpd.conf permissions
+
+    $ snmpset -v 2c -c public localhost NET-SNMP-EXAMPLES-MIB::netSnmpExampleInteger.0 i 200
+    # wrongValue error
+
+    $ snmpset -v 2c -c public localhost NET-SNMP-EXAMPLES-MIB::netSnmpExampleString.0 s "Test"
+    # notWritable error
+
 
 ## FAQ
 
 
-### What OID should I my tree use?
+### What OID should I use for my agent?
 
-If you are just playing and experminting you can use put everything under "NET-SNMP-MIB::netSnmpPlaypen" OID "1.3.6.1.4.1.8072.9999.9999" tree, but you shouldn't use it for any public work.
+If you are just playing and experminting you can put everything under "NET-SNMP-MIB::netSnmpPlaypen" OID "1.3.6.1.4.1.8072.9999.9999" tree, but you shouldn't use it for any public work.
 
-If you need publish your work you should apply for your own enterprise OID on the IANA [PEN Application page](http://pen.iana.org/pen/PenApplication.page), this will give you your own private tree, e.g. Net-Snmp uses 1.3.6.1.4.1.8072, Google uses 1.3.6.1.4.1.11129
+If you need to publish your work you should apply for your own enterprise OID on the IANA [PEN Application page](http://pen.iana.org/pen/PenApplication.page), this will give you your own private tree, e.g. Net-Snmp uses 1.3.6.1.4.1.8072, Google uses 1.3.6.1.4.1.11129
 
 So your company would have an OID 1.3.6.1.4.1.xxxxx
 
@@ -159,5 +164,5 @@ If the command doesn't return anything double check your agent community and Acc
 
 If it works on standard OIDs but it doesn't work on your sub agent, make sure you include the correct OID view:
 
-	view   systemview  included   .1.3.6.1.4.1.8072.2 
+    view   systemview  included   .1.3.6.1.4.1.8072.2 
 

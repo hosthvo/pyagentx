@@ -1,18 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# --------------------------------------------
 import logging
+class NullHandler(logging.Handler):
+    def emit(self, record):
+        pass
+logger = logging.getLogger('pyagentx.pdu')
+logger.addHandler(NullHandler())
+# --------------------------------------------
+
 import struct
 import pprint
 
 import pyagentx
-
-class NullHandler(logging.Handler):
-    def emit(self, record):
-        pass
-
-logger = logging.getLogger('pyagentx.pdu')
-logger.addHandler(NullHandler())
 
 
 class PDU(object):

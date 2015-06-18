@@ -1,7 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# --------------------------------------------
 import logging
+class NullHandler(logging.Handler):
+    def emit(self, record):
+        pass
+logger = logging.getLogger('pyagentx.network')
+logger.addHandler(NullHandler())
+# --------------------------------------------
+
 import socket
 import time
 import threading
@@ -11,21 +19,14 @@ import pyagentx
 from pyagentx.pdu import PDU
 
 
-class NullHandler(logging.Handler):
-    def emit(self, record):
-        pass
-
-logger = logging.getLogger('pyagentx.network')
-logger.addHandler(NullHandler())
-
-
 class Network(threading.Thread):
 
-    def __init__(self, queue, oid_list):
+    def __init__(self, queue, oid_list, sethandlers):
         threading.Thread.__init__(self)
         self.stop = threading.Event()
         self._queue = queue
         self._oid_list = oid_list
+        self._sethandlers = sethandlers
 
         self.session_id = 0
         self.transaction_id = 0
@@ -191,19 +192,40 @@ class Network(threading.Thread):
 
             elif request.type == pyagentx.AGENTX_TESTSET_PDU:
                 logger.info("Received TESTSET PDU")
+                idx = 0
                 for row in request.values:
+                    idx += 1                    
                     row['type_name'] = pyagentx.TYPE_NAME.get(row['type'], 'Unknown type')
                     logger.info("Name: [%(name)s] Value: [%(data)s] Type: [%(type_name)s]" % row)
-                response.error = pyagentx.ERROR_NOTWRITABLE
-                response.error_index = 1
+                    oid = row['name']
+                    if oid not in self._sethandlers:
+                        logger.debug('TestSet request failed: not writeable #%s' % idx)
+                        response.error = pyagentx.ERROR_NOTWRITABLE
+                        response.error_index = idx
+                        break
+                    try:
+                        self._sethandlers[oid].network_test(request.session_id, request.transaction_id, row['data'])
+                    except pyagentx.SetHandlerError:
+                        logger.debug('TestSet request failed: wrong value #%s' % idx)
+                        response.error = pyagentx.ERROR_WRONGVALUE
+                        response.error_index = idx
+                        break
+                logger.debug('TestSet request passed')
+
 
             elif request.type == pyagentx.AGENTX_COMMITSET_PDU:
+                for handler in self._sethandlers.values():
+                    handler.network_commit(request.session_id, request.transaction_id)
                 logger.info("Received COMMITSET PDU")
 
             elif request.type == pyagentx.AGENTX_UNDOSET_PDU:
+                for handler in self._sethandlers.values():
+                    handler.network_undo(request.session_id, request.transaction_id)
                 logger.info("Received UNDOSET PDU")
 
             elif request.type == pyagentx.AGENTX_CLEANUPSET_PDU:
+                for handler in self._sethandlers.values():
+                    handler.network_cleanup(request.session_id, request.transaction_id)
                 logger.info("Received CLEANUP PDU")
 
             self.send_pdu(response)
