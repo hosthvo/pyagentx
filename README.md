@@ -58,7 +58,7 @@ To implement agent you need to provide one "Agent" class and one or more "Update
             # the tree under "netSnmpPlaypen": 1.3.6.1.4.1.8072.9999.9999
             self.register('1.3.6.1.4.1.8072.9999.9999', NetSnmpPlaypen)
 
-    # Main 
+    # Main
     pyagentx.setup_logging()
     try:
         a = MyAgent()
@@ -76,12 +76,12 @@ To test:
 
 ## Example Agent
 
-To test the implementation I wrote an example agent that implement small parts of 
+To test the implementation I wrote an example agent that implement small parts of
 [NET-SNMP-EXAMPLES-MIB](http://www.net-snmp.org/docs/mibs/NET-SNMP-EXAMPLES-MIB.txt) including a table.
 
 To run the sub agent:
 
-    sudo ./example-agent.py 
+    sudo ./example-agent.py
 
 Then from another terminal query the master SNMP agent.
 
