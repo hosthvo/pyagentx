@@ -194,17 +194,24 @@ class Network(threading.Thread):
                 logger.info("Received TESTSET PDU")
                 idx = 0
                 for row in request.values:
-                    idx += 1                    
-                    row['type_name'] = pyagentx.TYPE_NAME.get(row['type'], 'Unknown type')
-                    logger.info("Name: [%(name)s] Value: [%(data)s] Type: [%(type_name)s]" % row)
+                    idx += 1
                     oid = row['name']
-                    if oid not in self._sethandlers:
+                    type_ = pyagentx.TYPE_NAME.get(row['type'], 'Unknown type')
+                    value = row['data']
+                    logger.info("Name: [%s] Type: [%s] Value: [%s]" % (oid, type_, value))
+                    # Find matching sethandler
+                    matching_oid = ''
+                    for target_oid in self._sethandlers:
+                        if oid.startswith(target_oid):
+                            matching_oid = target_oid
+                            break
+                    if matching_oid == '':
                         logger.debug('TestSet request failed: not writeable #%s' % idx)
                         response.error = pyagentx.ERROR_NOTWRITABLE
                         response.error_index = idx
                         break
                     try:
-                        self._sethandlers[oid].network_test(request.session_id, request.transaction_id, oid, row['data'])
+                        self._sethandlers[matching_oid].network_test(request.session_id, request.transaction_id, oid, row['data'])
                     except pyagentx.SetHandlerError:
                         logger.debug('TestSet request failed: wrong value #%s' % idx)
                         response.error = pyagentx.ERROR_WRONGVALUE
