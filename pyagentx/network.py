@@ -204,7 +204,7 @@ class Network(threading.Thread):
                         response.error_index = idx
                         break
                     try:
-                        self._sethandlers[oid].network_test(request.session_id, request.transaction_id, row['data'])
+                        self._sethandlers[oid].network_test(request.session_id, request.transaction_id, oid, row['data'])
                     except pyagentx.SetHandlerError:
                         logger.debug('TestSet request failed: wrong value #%s' % idx)
                         response.error = pyagentx.ERROR_WRONGVALUE

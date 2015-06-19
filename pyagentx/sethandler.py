@@ -18,13 +18,13 @@ class SetHandler(object):
     def __init__(self):
         self.transactions = {}
 
-    def network_test(self, session_id, transaction_id, data):
+    def network_test(self, session_id, transaction_id, oid, data):
         tid = "%s_%s" % (session_id, transaction_id)
         if tid in self.transactions:
             del(self.transactions[tid])
         try:
-            self.test(data)
-            self.transactions[tid] = data
+            self.test(oid, data)
+            self.transactions[tid] = oid, data
         except SetHandler as e:
             logger.error('TestSet failed')
             raise e
@@ -32,8 +32,8 @@ class SetHandler(object):
     def network_commit(self, session_id, transaction_id):
         tid = "%s_%s" % (session_id, transaction_id)        
         try:
-            data = self.transactions[tid]
-            self.commit(data)
+            oid, data = self.transactions[tid]
+            self.commit(oid, data)
             if tid in self.transactions:
                 del(self.transactions[tid])
         except:
@@ -50,9 +50,9 @@ class SetHandler(object):
             del(self.transactions[tid])
 
     # User override these 
-    def test(self, data):
+    def test(self, oid, data):
         pass
 
-    def commit(self, data):
+    def commit(self, oid, data):
         pass
 

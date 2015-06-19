@@ -53,14 +53,15 @@ class NetSnmpTestMibTable(pyagentx.Updater):
             self.set_OCTETSTRING('1.1.2.' + idx, 'member 1')
             self.set_OCTETSTRING('1.1.3.' + idx, 'member 2')
 
+
 class NetSnmpIntegerSet(pyagentx.SetHandler):
 
-    def test(self, data):
+    def test(self, oid, data):
         if int(data) > 100:
             raise pyagentx.SetHandlerError()
 
-    def commit(self, data):
-        print "COMMIT CALLED!!!!", data
+    def commit(self, oid, data):
+        print "COMMIT CALLED: %s = %s" % (oid, data)
 
 
 class MyAgent(pyagentx.Agent):
