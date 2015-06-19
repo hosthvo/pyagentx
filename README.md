@@ -166,3 +166,16 @@ If it works on standard OIDs but it doesn't work on your sub agent, make sure yo
 
     view   systemview  included   .1.3.6.1.4.1.8072.2 
 
+### How can I test it on Mac OSX?
+
+SNMP agent from net-snmp is already installed on OSX, but first you need to load it:
+
+    sudo launchctl load -w /System/Library/LaunchDaemons/org.net-snmp.snmpd.plist
+
+Then you can start and stop it with these commands:
+
+    sudo launchctl start org.net-snmp.snmpd
+    sudo launchctl start org.net-snmp.snmpd
+
+configuration file can be found on the default location "/etc/snmp/snmpd.conf".
+
