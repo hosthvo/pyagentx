@@ -35,12 +35,14 @@ class Updater(threading.Thread):
                 logger.info('Updating : %s (%s)' % (self.__class__.__name__, self._oid))
                 start_time = now
                 self._data = {}
-                self.update()
                 try:
+                    self.update()
                     self._queue.put_nowait({'oid': self._oid,
                                             'data':self._data})
                 except Queue.Full:
                     logger.error('Queue full')
+                except:
+                    logger.exception('Unhandled update exception')
             time.sleep(0.1)
         logger.info('Updater stopping')
 
