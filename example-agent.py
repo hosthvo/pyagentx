@@ -39,7 +39,7 @@ class NetSnmpTestMibScalar(pyagentx.Updater):
         self.set_GAUGE32('7.0', 2000)
         self.set_TIMETICKS('8.0', 1000000)
         self.set_OPAQUE('9.0', 'Test')
-        self.set_COUNTER32('10.0', 2000)
+        self.set_COUNTER64('10.0', 2000)
 
 
 class NetSnmpTestMibTable(pyagentx.Updater):

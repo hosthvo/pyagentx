@@ -32,11 +32,23 @@ class Agent(object):
     def register(self, oid, class_, freq=10):
         if Updater not in class_.__bases__:
             raise AgentError('Class given isn\'t an updater')
+        # cleanup and test oid
+        try:
+            oid = oid.strip(' .')
+            [int(i) for i in oid.split('.')]
+        except ValueError:
+            raise AgentError('OID isn\'t valid')
         self._updater_list.append({'oid':oid, 'class':class_, 'freq':freq})
 
     def register_set(self, oid, class_):
         if pyagentx.SetHandler not in class_.__bases__:
             raise AgentError('Class given isn\'t a SetHandler')
+        # cleanup and test oid
+        try:
+            oid = oid.strip(' .')
+            [int(i) for i in oid.split('.')]
+        except ValueError:
+            raise AgentError('OID isn\'t valid')
         self._sethandlers[oid] = class_()
 
     def setup(self):
