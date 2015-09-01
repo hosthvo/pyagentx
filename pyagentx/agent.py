@@ -11,8 +11,11 @@ logger.addHandler(NullHandler())
 # --------------------------------------------
 
 import time
-import Queue
 import inspect
+try:
+    import queue
+except ImportError:
+    import Queue as queue
 
 import pyagentx
 from pyagentx.updater import Updater
@@ -57,18 +60,18 @@ class Agent(object):
         pass
 
     def start(self):
-        queue = Queue.Queue(maxsize=20)
+        queue_ = queue.Queue(maxsize=20)
         self.setup()
         # Start Updaters
         for u in self._updater_list:
             logger.debug('Starting updater [%s]' % u['oid'])
             t = u['class']()
-            t.agent_setup(queue, u['oid'], u['freq'])
+            t.agent_setup(queue_, u['oid'], u['freq'])
             t.start()
             self._threads.append(t)
         # Start Network
         oid_list = [u['oid'] for u in self._updater_list]
-        t = Network(queue, oid_list, self._sethandlers)
+        t = Network(queue_, oid_list, self._sethandlers)
         t.start()
         self._threads.append(t)
         # Do nothing ... just wait for someone to stop you

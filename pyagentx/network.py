@@ -13,7 +13,10 @@ logger.addHandler(NullHandler())
 import socket
 import time
 import threading
-import Queue
+try:
+    import queue
+except ImportError:
+    import Queue as queue
 
 import pyagentx
 from pyagentx.pdu import PDU
@@ -84,17 +87,17 @@ class Network(threading.Thread):
                 update_oid = item['oid']
                 update_data = item['data']
                 # clear values with prefix oid
-                for oid in self.data.keys():
+                for oid in list(self.data.keys()):
                     if oid.startswith(update_oid):
                         del(self.data[oid])
                 # insert updated value
-                for row in update_data.values():
+                for row in list(update_data.values()):
                     oid = "%s.%s" % (update_oid, row['name'])
                     self.data[oid] = {'name': oid, 'type':row['type'],
                                       'value':row['value']}
                 # recalculate reverse index if data changed
-                self.data_idx = sorted(self.data.keys(), key=lambda k: tuple(int(part) for part in k.split('.')))
-            except Queue.Empty:
+                self.data_idx = sorted(list(self.data.keys()), key=lambda k: tuple(int(part) for part in k.split('.')))
+            except queue.Empty:
                 break
 
 
@@ -221,17 +224,17 @@ class Network(threading.Thread):
 
 
             elif request.type == pyagentx.AGENTX_COMMITSET_PDU:
-                for handler in self._sethandlers.values():
+                for handler in list(self._sethandlers.values()):
                     handler.network_commit(request.session_id, request.transaction_id)
                 logger.info("Received COMMITSET PDU")
 
             elif request.type == pyagentx.AGENTX_UNDOSET_PDU:
-                for handler in self._sethandlers.values():
+                for handler in list(self._sethandlers.values()):
                     handler.network_undo(request.session_id, request.transaction_id)
                 logger.info("Received UNDOSET PDU")
 
             elif request.type == pyagentx.AGENTX_CLEANUPSET_PDU:
-                for handler in self._sethandlers.values():
+                for handler in list(self._sethandlers.values()):
                     handler.network_cleanup(request.session_id, request.transaction_id)
                 logger.info("Received CLEANUP PDU")
 

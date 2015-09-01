@@ -21,8 +21,8 @@ pyagentx.setup_logging()
 try:
     a = MyAgent()
     a.start()
-except Exception as e:
-    print "Unhandled exception:", e
-    a.stop()
+#except Exception as e:
+#    print("Unhandled exception:", e)
+#    a.stop()
 except KeyboardInterrupt:
     a.stop()
