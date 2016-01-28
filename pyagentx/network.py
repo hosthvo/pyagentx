@@ -41,7 +41,7 @@ class Network(threading.Thread):
     def _connect(self):
         while True:
             try:
-                self.socket = socket.socket( socket.AF_UNIX, socket.SOCK_STREAM )
+                self.socket = socket.socket(pyagentx.SOCKET_FAMILY, socket.SOCK_STREAM )
                 self.socket.connect(pyagentx.SOCKET_PATH)
                 self.socket.settimeout(0.1)
                 return
