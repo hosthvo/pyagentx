@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+)
 
 # --------------------------------------------
 import logging
@@ -12,7 +17,11 @@ logger.addHandler(NullHandler())
 
 import time
 import threading
-import Queue
+try:
+    import queue
+except ImportError:
+    import Queue as queue
+
 
 import pyagentx
 
@@ -39,7 +48,7 @@ class Updater(threading.Thread):
                     self.update()
                     self._queue.put_nowait({'oid': self._oid,
                                             'data':self._data})
-                except Queue.Full:
+                except queue.Full:
                     logger.error('Queue full')
                 except:
                     logger.exception('Unhandled update exception')
