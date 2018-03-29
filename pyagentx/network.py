@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+)
 
 # --------------------------------------------
 import logging
@@ -13,7 +18,10 @@ logger.addHandler(NullHandler())
 import socket
 import time
 import threading
-import Queue
+try:
+    import queue
+except ImportError:
+    import Queue as queue
 
 import pyagentx
 from pyagentx.pdu import PDU
@@ -21,10 +29,10 @@ from pyagentx.pdu import PDU
 
 class Network(threading.Thread):
 
-    def __init__(self, queue, oid_list, sethandlers):
+    def __init__(self, update_queue, oid_list, sethandlers):
         threading.Thread.__init__(self)
         self.stop = threading.Event()
-        self._queue = queue
+        self._queue = update_queue
         self._oid_list = oid_list
         self._sethandlers = sethandlers
 
@@ -84,7 +92,7 @@ class Network(threading.Thread):
                 update_oid = item['oid']
                 update_data = item['data']
                 # clear values with prefix oid
-                for oid in self.data.keys():
+                for oid in list(self.data.keys()):
                     if oid.startswith(update_oid):
                         del(self.data[oid])
                 # insert updated value
@@ -94,7 +102,7 @@ class Network(threading.Thread):
                                       'value':row['value']}
                 # recalculate reverse index if data changed
                 self.data_idx = sorted(self.data.keys(), key=lambda k: tuple(int(part) for part in k.split('.')))
-            except Queue.Empty:
+            except queue.Empty:
                 break
 
 

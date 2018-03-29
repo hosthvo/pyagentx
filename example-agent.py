@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+)
 
 '''
 
@@ -61,7 +66,7 @@ class NetSnmpIntegerSet(pyagentx.SetHandler):
             raise pyagentx.SetHandlerError()
 
     def commit(self, oid, data):
-        print "COMMIT CALLED: %s = %s" % (oid, data)
+        print("COMMIT CALLED: %s = %s" % (oid, data))
 
 
 class MyAgent(pyagentx.Agent):
@@ -78,7 +83,7 @@ def main():
         a = MyAgent()
         a.start()
     except Exception as e:
-        print "Unhandled exception:", e
+        print ("Unhandled exception:", e)
         a.stop()
     except KeyboardInterrupt:
         a.stop()
