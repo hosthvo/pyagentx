@@ -114,15 +114,20 @@ class Network(threading.Thread):
             elist = endoid.split('.')
             for tmp_oid in self.data_idx:
                 tlist = tmp_oid.split('.')
-                for i in range(len(tlist)):
-                    try:
-                        sok = int(slist[i]) <= int(tlist[i])
-                        eok = int(elist[i]) >= int(tlist[i])
-                        if not ( sok and eok ):
+                ok=True
+                for i in range(len(slist)):
+                    s=int(slist[i]
+                    if i<len(tlist):
+                        t=int(tlist[i])
+                        if s > t:
+                            ok=False
                             break
-                    except IndexError:
-                        pass
-                if sok and eok:
+                        if i<len(elist):
+                            e=int(elist[i])
+                            if t > e:
+                                ok = False
+                                break
+                if ok:            
                     return tmp_oid
             return None # No match!
     
