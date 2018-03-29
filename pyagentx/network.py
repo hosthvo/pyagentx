@@ -117,8 +117,10 @@ class Network(threading.Thread):
                 for i in range(len(tlist)):
                     try:
                         sok = int(slist[i]) <= int(tlist[i])
+                        if not sok:
+                            break
                         eok = int(elist[i]) >= int(tlist[i])
-                        if not ( sok and eok ):
+                        if not eok:
                             break
                     except IndexError:
                         pass
