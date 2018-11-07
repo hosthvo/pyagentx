@@ -185,3 +185,14 @@ Then you can start and stop it with these commands:
 
 configuration file can be found on the default location "/etc/snmp/snmpd.conf".
 
+
+### To enable AgentX over tcp
+Edit your snmpd.conf file to enable tcp connection
+    agentXSocket    tcp:localhost:705
+
+In your minimal client override the following parameters prior to starting your client
+    
+    # set the socket family, in this case Internet Protocol v4 Addresses
+    pyagentx.SOCKET_FAMILY = socket.AF_INET
+    # set the socket to connect to, in this case localhost on port 705
+    pyagentx.SOCKET_PATH = ('localhost',705)
