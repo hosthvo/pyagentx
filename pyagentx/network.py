@@ -14,6 +14,7 @@ import socket
 import time
 import threading
 import Queue
+import struct
 
 import pyagentx
 from pyagentx.pdu import PDU
@@ -27,6 +28,7 @@ class Network(threading.Thread):
         self._queue = queue
         self._oid_list = oid_list
         self._sethandlers = sethandlers
+        self._recv_buf = ''
 
         self.session_id = 0
         self.transaction_id = 0
@@ -65,11 +67,18 @@ class Network(threading.Thread):
         self.socket.send(pdu.encode())
         
     def recv_pdu(self):
-        buf = self.socket.recv(1024)
-        if not buf: return None
+        if len(self._recv_buf) < 20:
+            self._recv_buf += self.socket.recv(1024)
+            if len(self._recv_buf) < 20:
+                return None
+        payload_len = struct.unpack('!L', self._recv_buf[16:20])[0]
+        logger.debug('buffer length {}, pdu length {}'.format(len(self._recv_buf), 20+payload_len))
         pdu = PDU()
-        pdu.decode(buf)
+        pdu.decode(self._recv_buf[:20+payload_len])
+        self._recv_buf = self._recv_buf[20+payload_len:]
         if self.debug: pdu.dump()
+        if len(self._recv_buf) > 0:
+            logger.debug('remaining buffer length {}'.format(len(self._recv_buf)))
         return pdu
 
 
