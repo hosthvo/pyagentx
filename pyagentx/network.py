@@ -222,7 +222,11 @@ class Network(threading.Thread):
 
             elif request.type == pyagentx.AGENTX_COMMITSET_PDU:
                 for handler in self._sethandlers.values():
-                    handler.network_commit(request.session_id, request.transaction_id)
+                    try:
+                        handler.network_commit(request.session_id, request.transaction_id)
+                    except:
+                        response.error = pyagentx.ERROR_COMMITFAILED
+                        response.error_index = 1
                 logger.info("Received COMMITSET PDU")
 
             elif request.type == pyagentx.AGENTX_UNDOSET_PDU:
