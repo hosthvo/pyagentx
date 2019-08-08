@@ -33,11 +33,11 @@ class SetHandler(object):
         tid = "%s_%s" % (session_id, transaction_id)        
         try:
             oid, data = self.transactions[tid]
-            self.commit(oid, data)
-            if tid in self.transactions:
-                del(self.transactions[tid])
-        except:
-            logger.error('CommitSet failed')
+        except KeyError:
+            return
+        self.commit(oid, data)
+        if tid in self.transactions:
+            del(self.transactions[tid])
 
     def network_undo(self, session_id, transaction_id):
         tid = "%s_%s" % (session_id, transaction_id)
