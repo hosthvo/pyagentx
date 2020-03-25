@@ -117,11 +117,16 @@ class Network(threading.Thread):
                 for i in range(len(tlist)):
                     try:
                         sok = int(slist[i]) <= int(tlist[i])
-                        eok = int(elist[i]) >= int(tlist[i])
-                        if not ( sok and eok ):
-                            break
                     except IndexError:
+                        #sok = True, on most recent successful comparison
                         pass
+                    try:
+                        eok = int(elist[i]) >= int(tlist[i])
+                    except IndexError:
+                        #eok = True, on most recent successful comparison
+                        pass
+                    if not ( sok and eok ):
+                        break
                 if sok and eok:
                     return tmp_oid
             return None # No match!
