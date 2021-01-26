@@ -11,8 +11,7 @@ logger.addHandler(NullHandler())
 # --------------------------------------------
 
 import time
-import Queue
-import inspect
+import queue as Queue
 
 import pyagentx
 from pyagentx.updater import Updater
@@ -31,7 +30,7 @@ class Agent(object):
         self._threads = []
 
     def register(self, oid, class_, freq=10):
-        if Updater not in inspect.getmro(class_):
+        if Updater not in class_.__bases__:
             raise AgentError('Class given isn\'t an updater')
         # cleanup and test oid
         try:
