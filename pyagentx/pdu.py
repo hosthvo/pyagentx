@@ -69,9 +69,10 @@ class PDU(object):
 
     def encode_octet(self, octet):
         buf = struct.pack('!L', len(octet))
-        buf += str(octet)
+        buf += octet
         padding = ( 4 - ( len(octet) % 4 ) ) % 4
-        buf += chr(0)* padding
+        # buf += chr(0)* padding
+        buf += b'0' * padding
         return buf
 
 
@@ -107,14 +108,14 @@ class PDU(object):
 
 
     def encode(self):
-        buf = ''
+        buf = b''
         if self.type == pyagentx.AGENTX_OPEN_PDU:
             # timeout
             buf += struct.pack('!BBBB', 5, 0, 0, 0)
             # agent OID
             buf += struct.pack('!L', 0)
             # Agent Desc
-            buf += self.encode_octet('MyAgent')
+            buf += self.encode_octet(b'MyAgent')
 
         elif self.type == pyagentx.AGENTX_PING_PDU:
             # No extra data
@@ -169,7 +170,7 @@ class PDU(object):
                 sub_ids.append(t[0])
             oid = '.'.join(str(i) for i in sub_ids)
             return oid, ret['include']
-        except Exception, e:
+        except Exception as e:
             logger.exception('Invalid packing OID header')
             logger.debug('%s' % pprint.pformat(self.decode_buf))
 
@@ -196,7 +197,7 @@ class PDU(object):
             buf = self.decode_buf[:l]
             self.decode_buf = self.decode_buf[l+padding:]
             return buf
-        except Exception, e:
+        except Exception as e:
             logger.exception('Invalid packing octet header')
 
 
@@ -204,7 +205,7 @@ class PDU(object):
         try:
             vtype,_ = struct.unpack('!HH', self.decode_buf[:4])
             self.decode_buf = self.decode_buf[4:]
-        except Exception, e:
+        except Exception as e:
             logger.exception('Invalid packing value header')
         oid,_ = self.decode_oid()
         if vtype in [pyagentx.TYPE_INTEGER, pyagentx.TYPE_COUNTER32, pyagentx.TYPE_GAUGE32, pyagentx.TYPE_TIMETICKS]:
@@ -252,7 +253,7 @@ class PDU(object):
                 context = self.decode_octet() 
                 logger.debug('Context: %s' % context)
             return ret
-        except Exception, e:
+        except Exception as e:
             logger.exception('Invalid packing: %d' % len(self.decode_buf))
             logger.debug('%s' % pprint.pformat(self.decode_buf))
 
