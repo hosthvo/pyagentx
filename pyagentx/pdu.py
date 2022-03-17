@@ -138,15 +138,11 @@ class PDU(object):
 
         return self.encode_header(self.type, len(buf)) + buf
 
-
-
-
     # ====================================================
     # decode functions
 
     def set_decode_buf(self, buf):
         self.decode_buf = buf
-
 
     def decode_oid(self):
         try:
