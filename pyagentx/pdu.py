@@ -105,7 +105,6 @@ class PDU(object):
         buf += struct.pack('!L', payload_length)
         return buf
 
-
     def encode(self):
         buf = ''
         if self.type == pyagentx.AGENTX_OPEN_PDU:
@@ -169,12 +168,17 @@ class PDU(object):
                 sub_ids.append(t[0])
             oid = '.'.join(str(i) for i in sub_ids)
             return oid, ret['include']
-        except Exception, e:
+        except Exception as e:
             logger.exception('Invalid packing OID header')
             logger.debug('%s' % pprint.pformat(self.decode_buf))
 
     def decode_search_range(self):
-        start_oid, include = self.decode_oid()
+        try:
+            start_oid, include = self.decode_oid()
+        except TypeError as e:
+            logger.exception(e)
+            start_oid = []
+
         if start_oid == []:
             return [], [], 0
         end_oid, _ = self.decode_oid()
@@ -186,7 +190,6 @@ class PDU(object):
             range_list.append(self.decode_search_range())
         return range_list
 
-    
     def decode_octet(self):
         try:
             t = struct.unpack('!L', self.decode_buf[:4])
@@ -196,15 +199,14 @@ class PDU(object):
             buf = self.decode_buf[:l]
             self.decode_buf = self.decode_buf[l+padding:]
             return buf
-        except Exception, e:
+        except Exception as e:
             logger.exception('Invalid packing octet header')
-
 
     def decode_value(self):
         try:
             vtype,_ = struct.unpack('!HH', self.decode_buf[:4])
             self.decode_buf = self.decode_buf[4:]
-        except Exception, e:
+        except Exception as e:
             logger.exception('Invalid packing value header')
         oid,_ = self.decode_oid()
         if vtype in [pyagentx.TYPE_INTEGER, pyagentx.TYPE_COUNTER32, pyagentx.TYPE_GAUGE32, pyagentx.TYPE_TIMETICKS]:
@@ -225,7 +227,6 @@ class PDU(object):
         else:
             logger.error('Unknown Type: %s' % vtype)
         return {'type':vtype, 'name':oid, 'data':data}
-
 
     def decode_header(self):
         try:
@@ -252,10 +253,9 @@ class PDU(object):
                 context = self.decode_octet() 
                 logger.debug('Context: %s' % context)
             return ret
-        except Exception, e:
+        except Exception as e:
             logger.exception('Invalid packing: %d' % len(self.decode_buf))
             logger.debug('%s' % pprint.pformat(self.decode_buf))
-
 
     def decode(self, buf):
         self.set_decode_buf(buf)
@@ -293,4 +293,3 @@ class PDU(object):
         else:
             pdu_type_str = pyagentx.PDU_TYPE_NAME.get(ret['pdu_type'], 'Unknown:'+ str(ret['pdu_type']))
             logger.error('Unsupported PDU type:'+ pdu_type_str)
-
